@@ -11,33 +11,37 @@
     <script>
         let canvas, canvasContext;
 
-        let ballSize = 10;
-        let ballX = 75;
-        let ballSpeedX = 5;
-        let ballY = 75;
-        let ballSpeedY = 5;
+		const INITIAL_BALL_SPEED = 10;
 
         const PADDLE_WIDTH = 10;
         const PADDLE_HEIGHT = 100;
         // const PADDLE_DIST_FROM_EDGE = 20;
         const PADDLE_REFLECTION_FIX = 0.35;
 		const PADDLE_PADDING = PADDLE_WIDTH * 2;
+		const PADDLE_HALF = PADDLE_HEIGHT/2;
+
+		let ballSize = 10;
+        let ballX = 75;
+        let ballY = 75;
+        let ballSpeedX = INITIAL_BALL_SPEED;
+        let ballSpeedY = INITIAL_BALL_SPEED;
 
         let paddleOneX = PADDLE_PADDING;
-        let paddleOneY = 300 - PADDLE_HEIGHT/2;
+        let paddleOneY = 300 - PADDLE_HALF;
 
 		let paddleTwoX = 800 - PADDLE_PADDING ;
-        let paddleTwoY = 300 - PADDLE_HEIGHT/2;
+        let paddleTwoY = 300 - PADDLE_HALF;
 
         function updateMousePos(evt){
             let rect = canvas.getBoundingClientRect();
             let root = document.documentElement;
 
-            // let mouseX = evt.clientX - rect.left - root.scrollLeft;
+			let mouseX = evt.clientX - rect.left - root.scrollLeft;
             let mouseY = evt.clientY - rect.top - root.scrollTop;
 
-            paddleOneY = mouseY - PADDLE_HEIGHT/2;
-			console.log('paddleY', paddleOneY );
+            paddleOneY = mouseY - PADDLE_HALF;
+		//console.log('paddleX ', paddleOneX , 'mouseX ', mouseX);
+		
         }
 
         window.onload = function() {
@@ -58,7 +62,8 @@
         function ballReset(){
             ballX = canvas.width/2;
             ballY = canvas.height/2
-            ballSpeedX *= -1;
+            // ballSpeedX *= -1;
+			
         }
 
         function moveAll(){
@@ -66,16 +71,12 @@
             ballY += ballSpeedY;
 
             detectBallOnWalls();
-
-            let paddleTopEdgeY = paddleOneY;
-            let paddleBottomEdgeY = paddleTopEdgeY + PADDLE_HEIGHT;
-
-            let paddleLeftEdgeX = paddleOneX;
-            let paddleRightEdgeX = paddleLeftEdgeX + PADDLE_WIDTH;
-
-            collisionDetetBallOnPaddle(paddleTopEdgeY, paddleBottomEdgeY, paddleLeftEdgeX, paddleRightEdgeX);
-
             blockPaddlesOutsideCanvas();
+
+            
+            collisionDetetBallOnPaddle();
+			
+
         }
 
         function drawAll(){
@@ -98,26 +99,36 @@
             canvasContext.fill();
         }
 
-        function collisionDetetBallOnPaddle(paddleTopEdgeY, paddleBottomEdgeY, paddleLeftEdgeX, paddleRightEdgeX){
-            if( ballY > paddleTopEdgeY &&
+        function collisionDetetBallOnPaddle(){
+			let paddleTopEdgeY = paddleOneY ;
+            let paddleBottomEdgeY = paddleTopEdgeY + PADDLE_HEIGHT;
+
+            let paddleLeftEdgeX = paddleOneX;
+            let paddleRightEdgeX = paddleOneX + PADDLE_WIDTH;
+
+	// console.log('ballX',ballX, 'ballY',ballY ,'paddleTopEdgeY', paddleTopEdgeY, 'paddleBottomEdgeY', paddleBottomEdgeY)
+			if( ballY > paddleTopEdgeY &&
                 ballY < paddleBottomEdgeY &&
                 ballX > paddleLeftEdgeX &&
                 ballX < paddleRightEdgeX
                 ){
-                    ballSpeedY *= -1;
+                    ballSpeedX *= -1;
 
-                    let centerOfpaddleOneX = paddleOneX + PADDLE_WIDTH/2;
-                    let ballDistFromPaddleCenterX = ballX - centerOfpaddleOneX;
-                    ballSpeedX = ballDistFromPaddleCenterX * PADDLE_REFLECTION_FIX;
+                    let ballDistFromPaddleCenterY = ballY - paddleOneY;
+                   ballSpeedY = ballDistFromPaddleCenterY * PADDLE_REFLECTION_FIX;
+
+					console.log('COLLISION! dist ' , ballDistFromPaddleCenterY);
                 }
         }
 
         function detectBallOnWalls(){
             if(ballX < 0){ // left
-                ballReset();
+				ballSpeedX *= -1;
+                // ballReset();
             }
             if(ballX > canvas.width){ // right
-                ballReset();
+                ballSpeedX *= -1;
+			//		ballReset();
             }
             if(ballY < ballSize){ // top
                 ballSpeedY *= -1;
