@@ -19,14 +19,15 @@
 
         const PADDLE_WIDTH = 10;
         const PADDLE_HEIGHT = 100;
-        const PADDLE_DIST_FROM_EDGE = 60;
+        // const PADDLE_DIST_FROM_EDGE = 20;
         const PADDLE_REFLECTION_FIX = 0.35;
+		const PADDLE_PADDING = PADDLE_WIDTH * 2;
 
-        let paddleOneX = PADDLE_WIDTH * 2;
-        let paddleOneY = 300;
+        let paddleOneX = PADDLE_PADDING;
+        let paddleOneY = 300 - PADDLE_HEIGHT/2;
 
-		let paddleTwoX = 800 - PADDLE_WIDTH *2 ;
-        let paddleTwoY = 300;
+		let paddleTwoX = 800 - PADDLE_PADDING ;
+        let paddleTwoY = 300 - PADDLE_HEIGHT/2;
 
         function updateMousePos(evt){
             let rect = canvas.getBoundingClientRect();
@@ -36,6 +37,7 @@
             let mouseY = evt.clientY - rect.top - root.scrollTop;
 
             paddleOneY = mouseY - PADDLE_HEIGHT/2;
+			console.log('paddleY', paddleOneY );
         }
 
         window.onload = function() {
@@ -65,7 +67,7 @@
 
             detectBallOnWalls();
 
-            let paddleTopEdgeY = canvas.height - PADDLE_DIST_FROM_EDGE;
+            let paddleTopEdgeY = paddleOneY;
             let paddleBottomEdgeY = paddleTopEdgeY + PADDLE_HEIGHT;
 
             let paddleLeftEdgeX = paddleOneX;
@@ -81,7 +83,7 @@
             colorCircle(ballX,ballY, ballSize, 'white');
 
             colorRect(paddleOneX, paddleOneY, PADDLE_WIDTH ,PADDLE_HEIGHT, 'white');
-			colorRect(paddleTwoX, 0 + PADDLE_DIST_FROM_EDGE, PADDLE_WIDTH ,PADDLE_HEIGHT, 'white');
+			colorRect(paddleTwoX, paddleTwoY, PADDLE_WIDTH ,PADDLE_HEIGHT, 'white');
         }
 
         function colorRect(topLeftX,topleftY, boxWidth,boxHeight, fillColor){
@@ -128,20 +130,20 @@
         // blocks both paddles if they go outside canvas
         function blockPaddlesOutsideCanvas(){
             // top
-            if( paddleOneY < PADDLE_HEIGHT / 2){
-                paddleOneY = PADDLE_HEIGHT / 2
+            if( paddleOneY < PADDLE_PADDING){
+                paddleOneY = PADDLE_PADDING;
             }
             // bottom
-            if( paddleOneY > canvas.height - PADDLE_HEIGHT/ 2){
-                paddleOneY = canvas.height - PADDLE_HEIGHT/ 2
+            if( paddleOneY > canvas.height - PADDLE_HEIGHT - PADDLE_PADDING){
+                paddleOneY = canvas.height - PADDLE_HEIGHT -PADDLE_PADDING
             }
             // top
-            if( paddleTwoY < PADDLE_HEIGHT / 2){
-                paddleTwoY = PADDLE_HEIGHT / 2
+            if( paddleTwoY < PADDLE_PADDING){
+                paddleTwoY = PADDLE_PADDING;
             }
             // bottom
-            if( paddleTwoY > canvas.height - PADDLE_HEIGHT/ 2){
-                paddleTwoY = canvas.height - PADDLE_HEIGHT/ 2
+            if( paddleTwoY > canvas.height - PADDLE_HEIGHT - PADDLE_PADDING){
+                paddleTwoY = canvas.height - PADDLE_HEIGHT -PADDLE_PADDING
             }
         }
 
