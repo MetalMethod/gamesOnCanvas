@@ -9,20 +9,19 @@
     <canvas id="gameCanvas" width="800" height="600"></canvas>
 
     <script>
-        let canvas, canvasContext;
+        let canvas, canvasContext, rect;
 
 		const INITIAL_BALL_SPEED = 10;
-
         const PADDLE_WIDTH = 10;
         const PADDLE_HEIGHT = 100;
-        // const PADDLE_DIST_FROM_EDGE = 20;
+        const PADDLE_PADDING = PADDLE_WIDTH * 2;
+        const PADDLE_HALF = PADDLE_HEIGHT/2;
         const PADDLE_REFLECTION_FIX = 0.35;
-		const PADDLE_PADDING = PADDLE_WIDTH * 2;
-		const PADDLE_HALF = PADDLE_HEIGHT/2;
+        const MIDDLELINE_SIZE = PADDLE_HEIGHT / 2;
 
 		let ballSize = 10;
-        let ballX = 75;
-        let ballY = 75;
+        let ballX = 400;
+        let ballY = 300;
         let ballSpeedX = INITIAL_BALL_SPEED;
         let ballSpeedY = INITIAL_BALL_SPEED;
 
@@ -32,26 +31,28 @@
 		let paddleTwoX = 800 - PADDLE_PADDING ;
         let paddleTwoY = 300 - PADDLE_HALF;
 
-        function updateMousePos(evt){
-            let rect = canvas.getBoundingClientRect();
-            let root = document.documentElement;
-
-			let mouseX = evt.clientX - rect.left - root.scrollLeft;
-            let mouseY = evt.clientY - rect.top - root.scrollTop;
-
-            paddleOneY = mouseY - PADDLE_HALF;
-		//console.log('paddleX ', paddleOneX , 'mouseX ', mouseX);
-		
-        }
+         let paddleTopEdgeY, paddleBottomEdgeY, paddleLeftEdgeX, paddleRightEdgeX;
 
         window.onload = function() {
             canvas = document.getElementById('gameCanvas');
             canvasContext = canvas.getContext('2d');
 
+            rect = canvas.getBoundingClientRect();
+
             let framesPerSecond = 30;
             setInterval(updateAll, 1000/framesPerSecond);
 
             canvas.addEventListener('mousemove', updateMousePos);
+        }
+
+         function updateMousePos(evt){
+            let root = document.documentElement;
+
+            let mouseX = evt.clientX - rect.left - root.scrollLeft;
+            let mouseY = evt.clientY - rect.top - root.scrollTop;
+
+            paddleOneY = mouseY - PADDLE_HALF;
+        //console.log('paddleX ', paddleOneX , 'mouseX ', mouseX);
         }
 
         function updateAll(){
@@ -63,7 +64,6 @@
             ballX = canvas.width/2;
             ballY = canvas.height/2
             // ballSpeedX *= -1;
-			
         }
 
         function moveAll(){
@@ -72,15 +72,17 @@
 
             detectBallOnWalls();
             blockPaddlesOutsideCanvas();
-
             
-            collisionDetetBallOnPaddle();
-			
-
+            //collisionDetect(paddleTopEdgeY, paddleBottomEdgeY, paddleLeftEdgeX, paddleRightEdgeX);
+            collisionDetect();
         }
 
         function drawAll(){
+            // background box
             colorRect(0,0, canvas.width, canvas.height, 'black');
+
+            drawMiddleLine();
+            
             colorCircle(ballX,ballY, ballSize, 'white');
 
             colorRect(paddleOneX, paddleOneY, PADDLE_WIDTH ,PADDLE_HEIGHT, 'white');
@@ -99,34 +101,30 @@
             canvasContext.fill();
         }
 
-        function collisionDetetBallOnPaddle(){
-			let paddleTopEdgeY = paddleOneY ;
-            let paddleBottomEdgeY = paddleTopEdgeY + PADDLE_HEIGHT;
+        //function collisionDetect(paddleTopEdgeY, paddleBottomEdgeY, paddleLeftEdgeX, paddleRightEdgeX){
+        function collisionDetect(){
+            paddleTopEdgeY = paddleOneY - PADDLE_HALF ;
+            paddleBottomEdgeY = paddleTopEdgeY + PADDLE_HEIGHT;
+            paddleLeftEdgeX = paddleOneX;
+            paddleRightEdgeX = paddleOneX + PADDLE_WIDTH;
 
-            let paddleLeftEdgeX = paddleOneX;
-            let paddleRightEdgeX = paddleOneX + PADDLE_WIDTH;
+//console.log('ballX',ballX, 'ballY',ballY ,'paddleTopEdgeY', paddleTopEdgeY, 'paddleBottomEdgeY', paddleBottomEdgeY);
 
-	// console.log('ballX',ballX, 'ballY',ballY ,'paddleTopEdgeY', paddleTopEdgeY, 'paddleBottomEdgeY', paddleBottomEdgeY)
-			if( ballY > paddleTopEdgeY &&
-                ballY < paddleBottomEdgeY &&
-                ballX > paddleLeftEdgeX &&
-                ballX < paddleRightEdgeX
-                ){
+            if(ballX > paddleLeftEdgeX && ballX < paddleRightEdgeX && ballY > paddleTopEdgeY && ballY < paddleBottomEdgeY){
+                    //console.log('COLLISION! dist ' , ballDistFromPaddleCenterY);
+					console.log('COLLISION!');
                     ballSpeedX *= -1;
-
-                    let ballDistFromPaddleCenterY = ballY - paddleOneY;
-                   ballSpeedY = ballDistFromPaddleCenterY * PADDLE_REFLECTION_FIX;
-
-					console.log('COLLISION! dist ' , ballDistFromPaddleCenterY);
+                    // let ballDistFromPaddleCenterY = ballY - paddleOneY;
+                    // ballSpeedY = ballDistFromPaddleCenterY * PADDLE_REFLECTION_FIX;
                 }
         }
 
         function detectBallOnWalls(){
-            if(ballX < 0){ // left
+            if(ballX < ballSize){ // left
 				ballSpeedX *= -1;
                 // ballReset();
             }
-            if(ballX > canvas.width){ // right
+            if(ballX > canvas.width - ballSize){ // right
                 ballSpeedX *= -1;
 			//		ballReset();
             }
@@ -155,6 +153,13 @@
             // bottom
             if( paddleTwoY > canvas.height - PADDLE_HEIGHT - PADDLE_PADDING){
                 paddleTwoY = canvas.height - PADDLE_HEIGHT -PADDLE_PADDING
+            }
+        }
+
+        // Draws the middle line on the canvas
+        function drawMiddleLine(){
+            for(let i = 0; i < canvas.height; i = i + MIDDLELINE_SIZE){
+                colorRect(canvas.width/2, i, 2 , MIDDLELINE_SIZE / 2, '#666');
             }
         }
 
