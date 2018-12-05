@@ -20,7 +20,7 @@
         const PADDLE_REFLECTION_FIX = 0.35;
         const MIDDLELINE_SIZE = PADDLE_HEIGHT / 2;
 
-        const FRAMES_PER_SECOND = 30;
+        const FRAMES_PER_SECOND = 60;
 
         const ballSize = 10;
         let ballX = 400;
@@ -76,7 +76,9 @@
         function ballReset() {
             console.log('reset')
             ballX = canvas.width / 2;
-            ballY = canvas.height / 2
+            ballY = canvas.height / 2;
+
+          
             // ballSpeedX *= -1;
         }
 
@@ -121,7 +123,7 @@
             colorRect(topLeftX, topleftY, boxWidth, boxHeight, fillColor)
            
            // draw ball collision
-            colorRect(ballX - ballSize, ballY - ballSize, ballSize * 2, ballSize * 2, 'green')
+            // colorRect(ballX - ballSize, ballY - ballSize, ballSize * 2, ballSize * 2, 'green')
 
         }
 
@@ -133,7 +135,7 @@
             
             // console.log(ballX);
             // console.log('PADDLE ', paddleOneRightEdgeX);
-            console.log('mouse ', mouseX)
+            // console.log('mouse ', mouseX)
 
             
             if (
@@ -144,7 +146,7 @@
                 ballY - ballSize < paddleOneBottomEdgeY
             ) {
                 //console.log('COLLISION! dist ' , ballDistFromPaddleCenterY);
-                console.log('COLLISION!', 'ballX - ballSize ', ballX  - ballSize, 'paddleOneRightEdgeX',paddleOneRightEdgeX, 'paddleOneLeftEdgeX ', paddleOneLeftEdgeX );
+                console.log('COLLISION!');
                 ballSpeedX = -ballSpeedX;
                 // let ballDistFromPaddleCenterY = ballY - paddleOneY;
                 // ballSpeedY = ballDistFromPaddleCenterY * PADDLE_REFLECTION_FIX;
@@ -155,7 +157,9 @@
         function detectBallOnWalls() {
             if (ballX < ballSize) { // left
                 ballSpeedX *= -1;
-                ballReset();
+                // ballReset();
+
+                  setTimeout( ballReset ,200);
             }
             if (ballX > canvas.width - ballSize) { // right
                 ballSpeedX *= -1;
