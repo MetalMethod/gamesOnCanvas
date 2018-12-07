@@ -144,34 +144,32 @@
             paddleOneLeftEdgeX = paddleOneX;
             paddleOneRightEdgeX = paddleOneX + PADDLE_WIDTH;
             
-            paddleOneCollisionDetect(paddleOneTopEdgeY, paddleOneBottomEdgeY, paddleOneLeftEdgeX, paddleOneRightEdgeX);
+            paddleOneCollisionDetect(paddleOneTopEdgeY, paddleOneBottomEdgeY, paddleOneRightEdgeX);
 
             paddleTwoTopEdgeY = paddleTwoY - PADDLE_HALF;
             paddleTwoBottomEdgeY = paddleTwoTopEdgeY + PADDLE_HEIGHT;
             paddleTwoLeftEdgeX = paddleTwoX;
             paddleTwoRightEdgeX = paddleTwoX + PADDLE_WIDTH;
 
-            paddleTwoCollisionDetect(paddleTwoTopEdgeY, paddleTwoBottomEdgeY, paddleTwoLeftEdgeX, paddleTwoRightEdgeX);
+            paddleTwoCollisionDetect(paddleTwoTopEdgeY, paddleTwoBottomEdgeY, paddleTwoLeftEdgeX);
         }
 
-        function paddleOneCollisionDetect(topEdgeY, bottomEdgeY,leftEdgeX, rightEdgeX) {
+        function paddleOneCollisionDetect(topEdgeY, bottomEdgeY, rightEdgeX) {
             if (
                 ballX - ballSize < rightEdgeX &&
                 ballY - ballSize > topEdgeY - ballSize &&
                 ballY - ballSize < bottomEdgeY
             ) {
-                // console.log('COLLISION!');
                 ballSpeedX = -ballSpeedX;
             }
         }
 
-        function paddleTwoCollisionDetect(topEdgeY, bottomEdgeY,leftEdgeX, rightEdgeX) {
+        function paddleTwoCollisionDetect(topEdgeY, bottomEdgeY,leftEdgeX) {
             if (
                 ballX + ballSize > leftEdgeX &&
                 ballY - ballSize > topEdgeY - ballSize &&
                 ballY - ballSize < bottomEdgeY + ballSize
             ) {
-                // console.log('COLLISION!');
                 ballSpeedX = -ballSpeedX;
             }
         }
