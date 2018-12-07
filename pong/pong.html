@@ -73,37 +73,28 @@
             drawAll();
         }
 
-        function ballReset() {
-            console.log('reset')
-            ballX = canvas.width / 2;
-            ballY = canvas.height / 2;
-
-          
-            // ballSpeedX *= -1;
-        }
 
         function moveAll() {
             ballX += ballSpeedX;
             ballY += ballSpeedY;
 
-            detectBallOnWalls();
-            blockPaddlesOutsideCanvas();
             movePaddleTwo();
+            blockPaddlesOutsideCanvas();
             collisionDetect();
         }
 
         function drawAll() {
-            // background box
+            // background
             colorRect(0, 0, canvas.width, canvas.height, 'black');
 
             drawMiddleLine();
 
+            // draw ball
             colorCircle(ballX, ballY, ballSize, 'white');
 
-            colorRect(paddleOneX, paddleOneY - PADDLE_HALF, PADDLE_WIDTH, PADDLE_HEIGHT, 'white');
-            colorRect(paddleTwoX, paddleTwoY - PADDLE_HALF, PADDLE_WIDTH, PADDLE_HEIGHT, 'white');
+            drawPaddles();
 
-            drawCollisionBox(paddleOneLeftEdgeX, paddleOneTopEdgeY, PADDLE_WIDTH, PADDLE_HEIGHT, 'red');
+            //drawCollisionBox(paddleOneLeftEdgeX, paddleOneTopEdgeY, PADDLE_WIDTH, PADDLE_HEIGHT, 'red');
         }
 
         function colorRect(topLeftX, topleftY, boxWidth, boxHeight, fillColor) {
@@ -118,52 +109,81 @@
             canvasContext.fill();
         }
 
-        function drawCollisionBox(topLeftX, topleftY, boxWidth, boxHeight, fillColor) {
-            // draw player collision
-            colorRect(topLeftX, topleftY, boxWidth, boxHeight, fillColor)
-           
-           // draw ball collision
-            // colorRect(ballX - ballSize, ballY - ballSize, ballSize * 2, ballSize * 2, 'green')
+        function drawPaddles(){
+            //Player One
+            colorRect(paddleOneX, paddleOneY - PADDLE_HALF, PADDLE_WIDTH, PADDLE_HEIGHT, 'white');
 
+            //Player Two
+            colorRect(paddleTwoX, paddleTwoY - PADDLE_HALF, PADDLE_WIDTH, PADDLE_HEIGHT, 'white');
         }
 
-        function collisionDetect() {
+        function drawCollisionBox(topLeftX, topleftY, boxWidth, boxHeight, fillColor) {
+            colorRect(topLeftX, topleftY, boxWidth, boxHeight, fillColor)
+           
+            //draw ball collision box
+            colorRect(ballX - ballSize, ballY - ballSize, ballSize * 2, ballSize * 2, 'green')
+        }
+
+        function ballReset() {
+            console.log('reset')
+            ballX = canvas.width / 2;
+            ballY = canvas.height / 2;
+           
+            ballSpeedX *= -1;
+            
+            if( Math.random() >= 0.5){
+                ballSpeedY *= -1;
+            }
+        }
+
+        function collisionDetect(){
+            detectBallOnWalls();
+
             paddleOneTopEdgeY = paddleOneY - PADDLE_HALF;
             paddleOneBottomEdgeY = paddleOneTopEdgeY + PADDLE_HEIGHT;
             paddleOneLeftEdgeX = paddleOneX;
             paddleOneRightEdgeX = paddleOneX + PADDLE_WIDTH;
             
-            // console.log(ballX);
-            // console.log('PADDLE ', paddleOneRightEdgeX);
-            // console.log('mouse ', mouseX)
+            paddleOneCollisionDetect(paddleOneTopEdgeY, paddleOneBottomEdgeY, paddleOneLeftEdgeX, paddleOneRightEdgeX);
 
-            
+            paddleTwoTopEdgeY = paddleTwoY - PADDLE_HALF;
+            paddleTwoBottomEdgeY = paddleTwoTopEdgeY + PADDLE_HEIGHT;
+            paddleTwoLeftEdgeX = paddleTwoX;
+            paddleTwoRightEdgeX = paddleTwoX + PADDLE_WIDTH;
+
+            paddleTwoCollisionDetect(paddleTwoTopEdgeY, paddleTwoBottomEdgeY, paddleTwoLeftEdgeX, paddleTwoRightEdgeX);
+        }
+
+        function paddleOneCollisionDetect(topEdgeY, bottomEdgeY,leftEdgeX, rightEdgeX) {
             if (
-                ballX  - ballSize < paddleOneRightEdgeX 
-                &&
-                ballY  - ballSize > paddleOneTopEdgeY
-                &&
-                ballY - ballSize < paddleOneBottomEdgeY
+                ballX - ballSize < rightEdgeX &&
+                ballY - ballSize > topEdgeY - ballSize &&
+                ballY - ballSize < bottomEdgeY
             ) {
-                //console.log('COLLISION! dist ' , ballDistFromPaddleCenterY);
-                console.log('COLLISION!');
+                // console.log('COLLISION!');
                 ballSpeedX = -ballSpeedX;
-                // let ballDistFromPaddleCenterY = ballY - paddleOneY;
-                // ballSpeedY = ballDistFromPaddleCenterY * PADDLE_REFLECTION_FIX;
-                // mouseClick();
+            }
+        }
+
+        function paddleTwoCollisionDetect(topEdgeY, bottomEdgeY,leftEdgeX, rightEdgeX) {
+            if (
+                ballX + ballSize > leftEdgeX &&
+                ballY - ballSize > topEdgeY - ballSize &&
+                ballY - ballSize < bottomEdgeY + ballSize
+            ) {
+                // console.log('COLLISION!');
+                ballSpeedX = -ballSpeedX;
             }
         }
 
         function detectBallOnWalls() {
             if (ballX < ballSize) { // left
-                ballSpeedX *= -1;
-                // ballReset();
-
-                  setTimeout( ballReset ,200);
+                ballReset();
+                //ballSpeedX *= -1;
             }
-            if (ballX > canvas.width - ballSize) { // right
-                ballSpeedX *= -1;
-                //		ballReset();
+            if (ballX > canvas.width - (ballSize*2)) { // right
+                ballReset();
+                //ballSpeedX *= -1;
             }
             if (ballY < ballSize) { // top
                 ballSpeedY *= -1;
@@ -176,20 +196,12 @@
         // blocks both paddles if they go outside canvas
         function blockPaddlesOutsideCanvas() {
             // top
-            if (paddleOneY < PADDLE_PADDING + PADDLE_HALF) {
-                paddleOneY = PADDLE_PADDING + PADDLE_HALF;
+            if (paddleOneY < PADDLE_HALF) {
+                paddleOneY = PADDLE_HALF;
             }
             // bottom
-            if (paddleOneY > canvas.height - PADDLE_HALF - PADDLE_PADDING) {
-                paddleOneY = canvas.height - PADDLE_HALF - PADDLE_PADDING;
-            }
-            // top
-            if (paddleTwoY < PADDLE_PADDING) {
-                paddleTwoY = PADDLE_PADDING + PADDLE_HALF;
-            }
-            // bottom
-            if (paddleTwoY > canvas.height - PADDLE_HEIGHT - PADDLE_PADDING) {
-                paddleTwoY = canvas.height - PADDLE_PADDING - PADDLE_HALF;
+            if (paddleOneY > canvas.height - PADDLE_HALF) {
+                paddleOneY = canvas.height - PADDLE_HALF;
             }
         }
 
@@ -201,8 +213,13 @@
         }
 
         function movePaddleTwo() {
-            paddleTwoY = paddleOneY;
             paddleTwoX = canvas.width - PADDLE_PADDING;
+
+            if(paddleTwoY < ballY) {
+                paddleTwoY += 6;
+            } else if(paddleTwoY > ballY) {
+                paddleTwoY -= 6;
+            }
         }
 
     </script>
